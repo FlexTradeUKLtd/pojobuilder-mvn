@@ -69,17 +69,13 @@ public class PojoBuilderBuilder<T extends Message> {
         methodBody._return(message);
     }
 
-    private String convertFirstCharToLowercase(String string) {
-        return string.isEmpty() ? string : string.substring(0, 1).toLowerCase() + string.substring(1);
-    }
-
     private class CreateField implements Consumer<Property> {
         @Override
         public void accept(Property method) {
 
             Method setter = method.setter.method;
             String fieldName = method.getFieldName();
-                String fieldNameCamelCase = convertFirstCharToLowercase(fieldName);
+                String fieldNameCamelCase = method.getFieldNameCamelCase();
 
                 Class[] params = setter.getParameterTypes();
 

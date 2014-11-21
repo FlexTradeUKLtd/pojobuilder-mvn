@@ -13,4 +13,16 @@ public class Property {
     public String getFieldName() {
         return setter.getFieldName();
     }
+
+    public String getFieldNameCamelCase() {
+        return convertFirstCharToLowercase(getFieldName());
+    }
+
+    private String convertFirstCharToLowercase(String string) {
+        return string.isEmpty() ? string : string.substring(0, 1).toLowerCase() + string.substring(1);
+    }
+
+    public Class<?> getType() {
+        return getter.method.getReturnType();
+    }
 }

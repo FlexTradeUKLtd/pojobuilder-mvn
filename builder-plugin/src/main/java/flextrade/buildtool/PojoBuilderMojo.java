@@ -47,6 +47,7 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 import flextrade.buildtool.builder.PojoBuilderBuilder;
+import flextrade.buildtool.builder.PojoMatcherBuilder;
 
 /**
  * Echos an object string to the output screen.
@@ -57,6 +58,7 @@ import flextrade.buildtool.builder.PojoBuilderBuilder;
 public class PojoBuilderMojo extends AbstractMojo
 {
     public static final String TARGET_BUILDERS_SOURCES = "./target/generated-sources/builders/";
+    public static final String TARGET_MATCHERS_SOURCES = "./target/generated-test-sources/builders/";
     public static final String TARGET_BUILDERS_CLASSES = "./target/builders/classes";
     public static final String $_PROJECT_BUILD_DIRECTORY = "${project.build.directory}/";
     /**
@@ -106,6 +108,7 @@ public class PojoBuilderMojo extends AbstractMojo
             getLog().info("creating builder for " + clazz);
             try {
                 new PojoBuilderBuilder(clazz).build();
+                new PojoMatcherBuilder(clazz).build();
             } catch (JClassAlreadyExistsException | IOException e){
                 getLog().error(e);
             }
