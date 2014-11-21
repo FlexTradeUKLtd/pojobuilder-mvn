@@ -43,18 +43,13 @@ public class PojoBuilderBuilder<T extends Message> {
 
 
     public void build() throws IOException {
-
-        final String fieldName = "Property";
-
         Arrays.asList(clazz.getMethods()).stream().forEach(new CreateField());
-
 
         createBuildMethod();
 
         File file = new File(PojoBuilderMojo.TARGET_BUILDERS_SOURCES);
         file.mkdirs();
         codeModel.build(file);
-
     }
 
     private void createBuildMethod() {
