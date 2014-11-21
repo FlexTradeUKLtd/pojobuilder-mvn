@@ -1,25 +1,16 @@
 package flextrade.buildtool.builder;
 
-import java.lang.reflect.Method;
-
-import com.sun.codemodel.JFieldVar;
-
-
 public class Property {
+    public final MethodWrapper getter;
+    public final MethodWrapper setter;
 
-    private final JFieldVar fieldVar;
-    private final Method setter;
-
-    public Property(JFieldVar fieldVar, Method setter) {
-        this.fieldVar = fieldVar;
+    public Property(MethodWrapper getter, MethodWrapper setter) {
+        this.getter = getter;
         this.setter = setter;
+        assert setter.getFieldName().equals(getter.getFieldName());
     }
 
-    public Method getSetter() {
-        return setter;
-    }
-
-    public JFieldVar getFieldVar() {
-        return fieldVar;
+    public String getFieldName() {
+        return setter.getFieldName();
     }
 }

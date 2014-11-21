@@ -7,9 +7,9 @@ import static com.sun.codemodel.JExpr.ref;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 import com.dyuproject.protostuff.Message;
@@ -33,20 +33,24 @@ public class PojoBuilderBuilder<T extends Message> {
     private final Class<T> clazz;
     private final JDefinedClass definedClass;
 
-    private final Set<Property> properties = newHashSet();
+    private final Set<FieldSetter> properties = newHashSet();
 
     public PojoBuilderBuilder(Class<T> clazz) throws JClassAlreadyExistsException {
-
         this.clazz = clazz;
         definedClass = codeModel._class(clazz.getName() + "Builder");
     }
 
-
     public void build() throws IOException {
-        Arrays.asList(clazz.getMethods()).stream().forEach(new CreateField());
+        Stream<Property> fields = new FieldFinder().getFields(clazz);
+
+        fields.forEach(new CreateField());
 
         createBuildMethod();
 
+        buildFile();
+    }
+
+    private void buildFile() throws IOException {
         File file = new File(PojoBuilderMojo.TARGET_BUILDERS_SOURCES);
         file.mkdirs();
         codeModel.build(file);
@@ -58,7 +62,7 @@ public class PojoBuilderBuilder<T extends Message> {
         JBlock methodBody = builderMethod.body();
 
         JVar message = methodBody.decl(pojoClass, "result", _new(pojoClass));
-        for(Property property : properties) {
+        for(FieldSetter property : properties) {
             methodBody.invoke(message, property.getSetter().getName()).arg(property.getFieldVar());
         }
 
@@ -69,14 +73,15 @@ public class PojoBuilderBuilder<T extends Message> {
         return string.isEmpty() ? string : string.substring(0, 1).toLowerCase() + string.substring(1);
     }
 
-    private class CreateField implements Consumer<Method> {
+    private class CreateField implements Consumer<Property> {
         @Override
-        public void accept(Method method) {
-            if(method.getName().startsWith("set")) {
-                String fieldName = method.getName().substring(3);
+        public void accept(Property method) {
+
+            Method setter = method.setter.method;
+            String fieldName = method.getFieldName();
                 String fieldNameCamelCase = convertFirstCharToLowercase(fieldName);
 
-                Class[] params = method.getParameterTypes();
+                Class[] params = setter.getParameterTypes();
 
                 assert params.length == 1 : "Cannot create builder if setter has multiple params";
 
@@ -86,8 +91,7 @@ public class PojoBuilderBuilder<T extends Message> {
 
                 createWithMethod(fieldName, fieldNameCamelCase, fieldType, field);
 
-                properties.add(new Property(field, method));
-            }
+                properties.add(new FieldSetter(field, setter));
         }
 
         private void createWithMethod(String fieldName, String fieldNameCamelCase, Class fieldType, JFieldVar field) {
@@ -95,6 +99,25 @@ public class PojoBuilderBuilder<T extends Message> {
             withMethod.param(fieldType, fieldNameCamelCase);
             withMethod.body().assign(JExpr._this().ref(field), ref(fieldNameCamelCase));
             withMethod.body()._return(JExpr._this());
+        }
+    }
+
+    private static class FieldSetter {
+
+        private final JFieldVar fieldVar;
+        private final Method setter;
+
+        public FieldSetter(JFieldVar fieldVar, Method setter) {
+            this.fieldVar = fieldVar;
+            this.setter = setter;
+        }
+
+        public Method getSetter() {
+            return setter;
+        }
+
+        public JFieldVar getFieldVar() {
+            return fieldVar;
         }
     }
 }
