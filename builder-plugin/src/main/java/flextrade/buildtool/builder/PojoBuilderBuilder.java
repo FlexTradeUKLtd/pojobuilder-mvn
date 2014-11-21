@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-
 import com.dyuproject.protostuff.Message;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
@@ -24,23 +23,21 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 
-import flextrade.buildtool.PojoBuilderMojo;
-
-public class PojoBuilderBuilder<T extends Message> {
+class PojoBuilderBuilder<T extends Message> {
 
 
     private final JCodeModel codeModel = new JCodeModel();
     private final Class<T> clazz;
+    private final String outputDir;
     private final JDefinedClass definedClass;
 
     private final Set<FieldSetter> properties = newHashSet();
 
-    public PojoBuilderBuilder(Class<T> clazz) throws JClassAlreadyExistsException {
+    public PojoBuilderBuilder(Class<T> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
+        this.outputDir = outputDir;
         definedClass = codeModel._class(clazz.getName() + "Builder");
-    }
 
-    public void build() throws IOException {
         Stream<Property> fields = new FieldFinder().getFields(clazz);
 
         fields.forEach(new CreateField());
@@ -50,8 +47,9 @@ public class PojoBuilderBuilder<T extends Message> {
         buildFile();
     }
 
+
     private void buildFile() throws IOException {
-        File file = new File(PojoBuilderMojo.TARGET_BUILDERS_SOURCES);
+        File file = new File(outputDir);
         file.mkdirs();
         codeModel.build(file);
     }
