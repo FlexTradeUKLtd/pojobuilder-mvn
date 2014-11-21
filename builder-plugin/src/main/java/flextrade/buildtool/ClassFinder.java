@@ -34,7 +34,17 @@ public class ClassFinder {
         this.log = log;
     }
 
-    public Set<Class<? extends Message>> findClasses() throws MojoFailureException {
+    public Set<Class<?>> findSubClassesOf(String className) throws ClassNotFoundException, MojoFailureException {
+        log.info("Searching for sub classes of " + className);
+        return findClasses(Class.forName(className));
+    }
+
+    public <T> Set<Class<? extends T>> findClasses(Class<?> anyClazz) throws MojoFailureException, ClassNotFoundException {
+        Class<T> clazz = (Class<T>) anyClazz;
+
+
+        log.info("Searching for sub classes of " + clazz.getName());
+
         List<URL> urls;
         try {
             for(String s : project.getCompileClasspathElements()) {
@@ -50,7 +60,6 @@ public class ClassFinder {
 
         log.info("got " + urls.size() + " urls");
         URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
-
         log.info("got classLoader");
 
         Arrays.asList(classLoader.getURLs()).stream().forEach(url -> log.info(url.toString()));
@@ -64,7 +73,7 @@ public class ClassFinder {
 
         log.info("got reflections");
 
-        Set<Class<? extends Message>> classes = reflections.getSubTypesOf(Message.class);
+        Set<Class<? extends T>> classes = reflections.getSubTypesOf(clazz);
 
         log.info("got " + classes.size() + " classes");
         return classes;
