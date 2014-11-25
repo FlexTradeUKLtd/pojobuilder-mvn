@@ -38,9 +38,7 @@ class PojoBuilderBuilder<T extends Message> {
         this.outputDir = outputDir;
         definedClass = codeModel._class(clazz.getName() + "Builder");
 
-        Stream<Property> fields = new FieldFinder().getFields(clazz);
-
-        fields.forEach(new CreateField());
+        new FieldFinder().getFields(clazz).forEach(new CreateField());
 
         createBuildMethod();
 
@@ -69,17 +67,17 @@ class PojoBuilderBuilder<T extends Message> {
 
     private class CreateField implements Consumer<Property> {
         @Override
-        public void accept(Property method) {
+        public void accept(Property property) {
 
-            Method setter = method.setter.method;
-            String fieldName = method.getFieldName();
-                String fieldNameCamelCase = method.getFieldNameCamelCase();
+            Method setter = property.setter.method;
+            String fieldName = property.getFieldName();
+                String fieldNameCamelCase = property.getFieldNameCamelCase();
 
                 Class[] params = setter.getParameterTypes();
 
                 assert params.length == 1 : "Cannot create builder if setter has multiple params";
 
-                Class fieldType = params[0];
+                Class fieldType = property.getType();
 
                 JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel.ref(fieldType), fieldNameCamelCase);
 

@@ -11,11 +11,23 @@ public class MethodWrapper {
     }
 
     public boolean isGetter() {
-        return method.getName().startsWith("get") && !method.getReturnType().equals(Void.TYPE) && (method.getParameterCount() == 0);
+        return method.getName().startsWith("get") && !methodReturnsVoid() && methodHasNoArgs();
+    }
+
+    private boolean methodHasNoArgs() {
+        return method.getParameterCount() == 0;
+    }
+
+    private boolean methodReturnsVoid() {
+        return method.getReturnType().equals(Void.TYPE);
     }
 
     public boolean isSetter() {
-        return method.getName().startsWith("set") && (method.getParameterCount() == 1);
+        return method.getName().startsWith("set") && hasOneArg();
+    }
+
+    private boolean hasOneArg() {
+        return method.getParameterCount() == 1;
     }
 
     public String getFieldName() {

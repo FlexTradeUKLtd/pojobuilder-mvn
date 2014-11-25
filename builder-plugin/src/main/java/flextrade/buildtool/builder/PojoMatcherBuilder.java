@@ -17,6 +17,7 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
@@ -80,14 +81,28 @@ public class PojoMatcherBuilder<T extends Message> {
             JMethod withMethod = definedClass.method(JMod.PUBLIC, definedClass, "with" + property.getFieldName());
             withMethod.param(property.getType(), property.getFieldNameCamelCase());
             withMethod.body().assign(matcherField,
-                    codeModel.ref(Matchers.class).staticInvoke("allOf")
-                            .arg(matcherField)
-                            .arg(codeModel.ref(Matchers.class).staticInvoke("hasProperty")
-                                            .arg(JExpr.lit(property.getFieldNameCamelCase()))
-                                            .arg(codeModel.ref(Matchers.class).staticInvoke("is").arg(ref(property.getFieldNameCamelCase())))
+                    matchers_allOf(
+                            matcherField,
+                            matchers_hasProperty(
+                                    property.getFieldNameCamelCase(),
+                                    is(property.getFieldNameCamelCase())
                             )
+                    )
+
             );
             withMethod.body()._return(JExpr._this());
         }
+
+        private JInvocation is(String expected) {
+            return codeModel.ref(Matchers.class).staticInvoke("is").arg(ref(expected));
+        }
+    }
+
+    private JInvocation matchers_allOf(JExpression matcher1, JExpression matcher2) {
+        return codeModel.ref(Matchers.class).staticInvoke("allOf").arg(matcher1).arg(matcher2);
+    }
+
+    private JInvocation matchers_hasProperty(String propertyName, JExpression matcher) {
+        return codeModel.ref(Matchers.class).staticInvoke("hasProperty").arg(JExpr.lit(propertyName)).arg(matcher);
     }
 }
