@@ -26,9 +26,14 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * @parameter property = "output.dir", defaultValue = "/target/generated-sources/"
+     * @parameter property = "output.dir", defaultValue = "/target/fail/generated-sources/"
      */
     private String outputDirectory;
+
+    /**
+     * @parameter property
+     */
+    private String subClassesOf;
 
     private final Builder builder;
 
@@ -40,11 +45,11 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
     {
         ClassFinder classFinder = new ClassFinder(project, getLog());
 
-        Set<Class<? extends Message>> classes = classFinder.findClasses();
+        Set<Class<?>> classes = classFinder.findClasses(subClassesOf);//"com.dyuproject.protostuff.Message");
 
         builder.outputTo(outputDirectory);
 
-        for(Class<? extends Message> clazz : classes) {
+        for(Class<?> clazz : classes) {
             getLog().info("creating builder for " + clazz);
             try {
 

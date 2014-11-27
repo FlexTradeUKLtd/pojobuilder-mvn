@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import com.dyuproject.protostuff.Message;
 import com.sun.codemodel.JBlock;
