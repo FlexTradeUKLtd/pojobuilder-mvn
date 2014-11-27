@@ -4,25 +4,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class FieldFinder {
 
-    public Stream<Property> getFields(Class clazz) {
-        HashMap<String, MethodWrapper> getters = new HashMap<>();
-        HashMap<String, MethodWrapper> setters = new HashMap<>();
+    private final HashMap<String, MethodWrapper> getters = new HashMap<>();
+    private final HashMap<String, MethodWrapper> setters = new HashMap<>();
 
-        Arrays.asList(clazz.getMethods()).stream().map(MethodWrapper::new).forEach(new Consumer<MethodWrapper>() {
+    private final Stream<Property> fields;
 
-            @Override
-            public void accept(MethodWrapper methodWrapper) {
-                if(methodWrapper.isGetter())
-                    getters.put(methodWrapper.getFieldName(), methodWrapper);
-                else if(methodWrapper.isSetter())
-                    setters.put(methodWrapper.getFieldName(), methodWrapper);
-            }
-        });
+    public FieldFinder(Class clazz) {
+        fields = createFields(clazz);
+    }
+
+    private Stream<Property> createFields(Class clazz) {
+        Arrays.asList(clazz.getMethods()).stream().map(MethodWrapper::new).forEach(methodWrapper -> findGettersAndSetters(methodWrapper));
 
         Set<String> fieldNames = new HashSet<>(getters.keySet());
         fieldNames.retainAll(setters.keySet());
@@ -30,4 +26,14 @@ public class FieldFinder {
         return fieldNames.stream().map(fieldName -> new Property(getters.get(fieldName), setters.get(fieldName)));
     }
 
+    private void findGettersAndSetters(MethodWrapper methodWrapper) {
+        if(methodWrapper.isGetter())
+            getters.put(methodWrapper.getFieldName(), methodWrapper);
+        else if(methodWrapper.isSetter())
+            setters.put(methodWrapper.getFieldName(), methodWrapper);
+    }
+
+    public Stream<Property> getFields() {
+        return fields;
+    }
 }

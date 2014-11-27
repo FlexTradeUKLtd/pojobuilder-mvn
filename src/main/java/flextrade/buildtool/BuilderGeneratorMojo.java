@@ -8,9 +8,9 @@ import flextrade.buildtool.builder.BuilderBuilder;
  * @requiresProject true
  * @resolveDependencies true
  */
-public class BuilderBuilderMojo extends AbstractBuilderMojo {
+public class BuilderGeneratorMojo extends AbstractBuilderMojo {
 
-    public BuilderBuilderMojo() {
+    public BuilderGeneratorMojo() {
         super(new BuilderBuilder());
     }
 }

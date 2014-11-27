@@ -8,9 +8,9 @@ import flextrade.buildtool.builder.MatcherBuilder;
  * @requiresProject true
  * @resolveDependencies true
  */
-public class MatcherBuilderMojo extends AbstractBuilderMojo {
+public class MatcherGeneratorMojo extends AbstractBuilderMojo {
 
-    public MatcherBuilderMojo() {
+    public MatcherGeneratorMojo() {
         super(new MatcherBuilder());
     }
 }

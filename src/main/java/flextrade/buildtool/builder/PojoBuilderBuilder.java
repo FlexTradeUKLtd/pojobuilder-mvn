@@ -23,7 +23,6 @@ import com.sun.codemodel.JVar;
 
 class PojoBuilderBuilder {
 
-
     private final JCodeModel codeModel = new JCodeModel();
     private final Class<?> clazz;
     private final String outputDir;
@@ -36,13 +35,10 @@ class PojoBuilderBuilder {
         this.outputDir = outputDir;
         definedClass = codeModel._class(clazz.getName() + "Builder");
 
-        new FieldFinder().getFields(clazz).forEach(new CreateField());
-
+        new FieldFinder(clazz).getFields().forEach(new CreateField());
         createBuildMethod();
-
         buildFile();
     }
-
 
     private void buildFile() throws IOException {
         File file = new File(outputDir);
@@ -55,12 +51,12 @@ class PojoBuilderBuilder {
         JMethod builderMethod = definedClass.method(JMod.PUBLIC, pojoClass, "build");
         JBlock methodBody = builderMethod.body();
 
-        JVar message = methodBody.decl(pojoClass, "result", _new(pojoClass));
+        JVar builtPojo = methodBody.decl(pojoClass, "result", _new(pojoClass));
         for(FieldSetter property : properties) {
-            methodBody.invoke(message, property.getSetter().getName()).arg(property.getFieldVar());
+            methodBody.invoke(builtPojo, property.getSetter().getName()).arg(property.getFieldVar());
         }
 
-        methodBody._return(message);
+        methodBody._return(builtPojo);
     }
 
     private class CreateField implements Consumer<Property> {
@@ -69,19 +65,15 @@ class PojoBuilderBuilder {
 
             Method setter = property.setter.method;
             String fieldName = property.getFieldName();
-                String fieldNameCamelCase = property.getFieldNameCamelCase();
+            String fieldNameCamelCase = property.getFieldNameCamelCase();
 
-                Class[] params = setter.getParameterTypes();
+            Class[] params = setter.getParameterTypes();
+            assert params.length == 1 : "Cannot create builder if setter has multiple params";
 
-                assert params.length == 1 : "Cannot create builder if setter has multiple params";
-
-                Class fieldType = property.getType();
-
-                JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel.ref(fieldType), fieldNameCamelCase);
-
-                createWithMethod(fieldName, fieldNameCamelCase, fieldType, field);
-
-                properties.add(new FieldSetter(field, setter));
+            Class fieldType = property.getType();
+            JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel.ref(fieldType), fieldNameCamelCase);
+            createWithMethod(fieldName, fieldNameCamelCase, fieldType, field);
+            properties.add(new FieldSetter(field, setter));
         }
 
         private void createWithMethod(String fieldName, String fieldNameCamelCase, Class fieldType, JFieldVar field) {

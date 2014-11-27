@@ -5,7 +5,6 @@ import static com.sun.codemodel.JExpr.ref;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -30,25 +29,22 @@ public class PojoMatcherBuilder {
     private final String outputDir;
     private final JDefinedClass definedClass;
     private final JFieldVar matcherField;
-    private final Stream<Property> fields;
 
     public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
         this.outputDir = outputDir;
+
         definedClass = codeModel._class(clazz.getName() + "Matcher");
         definedClass._extends(codeModel.ref(BaseMatcher.class).narrow(clazz));
         matcherField = definedClass.field(JMod.PRIVATE, codeModel.ref(Matcher.class).narrow(clazz), "matcher", isInstanceOfClazz());
-        fields = new FieldFinder().getFields(clazz);
+
+        new FieldFinder(clazz).getFields().forEach(new CreateWithMethod());
 
         createMatchesMethod();
-
         createDescriptToMethod();
-
-        fields.forEach(new CreateWithMethod());
 
         buildFile();
     }
-
 
     private void createDescriptToMethod() {
         JMethod describeToMethod = definedClass.method(JMod.PUBLIC, codeModel.VOID, "describeTo");
