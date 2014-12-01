@@ -1,6 +1,7 @@
 package flextrade.buildtool;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -47,9 +48,11 @@ public class ClassFinder {
     }
 
     private URLClassLoader getDependencyClassLoader() throws MojoFailureException {
-        List<URL> urls = project.getDependencyArtifacts().stream().map(Artifact::getFile).map(f -> toURL(f)).collect(Collectors.<URL>toList());
+        List<URL> urls = project.getDependencyArtifacts().stream().map(Artifact::getFile).map(f -> toURL(f)).collect(toList());
 
         log.debug("got " + urls.size() + " urls");
+
+        urls.forEach(url -> log.debug(url.toString()));
 
         if(urlException.isPresent()) {
             throw new MojoFailureException("Unable to parse dependency URLs", urlException.get());
@@ -78,6 +81,16 @@ public class ClassFinder {
     private URL toURL(File file) {
         try {
             return file.toURL();
+        } catch (MalformedURLException e) {
+            log.error(e);
+            urlException = Optional.of(e);
+            return null;
+        }
+    }
+
+    private URL toURL(String path) {
+        try {
+            return new URL(path);
         } catch (MalformedURLException e) {
             log.error(e);
             urlException = Optional.of(e);

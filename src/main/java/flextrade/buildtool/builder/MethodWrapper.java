@@ -11,7 +11,23 @@ public class MethodWrapper {
     }
 
     public boolean isGetter() {
-        return method.getName().startsWith("get") && !methodReturnsVoid() && methodHasNoArgs();
+        return methodHasNoArgs() && (isBooleanGetter() || isNonBooleanGetter());
+    }
+
+    private boolean isBooleanGetter() {
+        return methodName().startsWith("is") && Boolean.TYPE.equals(getReturnType());
+    }
+
+    private Class<?> getReturnType() {
+        return method.getReturnType();
+    }
+
+    private boolean isNonBooleanGetter() {
+        return methodName().startsWith("get") && !methodReturnsVoid();
+    }
+
+    private String methodName() {
+        return method.getName();
     }
 
     private boolean methodHasNoArgs() {
@@ -19,11 +35,11 @@ public class MethodWrapper {
     }
 
     private boolean methodReturnsVoid() {
-        return method.getReturnType().equals(Void.TYPE);
+        return getReturnType().equals(Void.TYPE);
     }
 
     public boolean isSetter() {
-        return method.getName().startsWith("set") && hasOneArg();
+        return methodName().startsWith("set") && hasOneArg();
     }
 
     private boolean hasOneArg() {
@@ -31,6 +47,9 @@ public class MethodWrapper {
     }
 
     public String getFieldName() {
-        return method.getName().substring(3);
+        if(isBooleanGetter())
+            return methodName().substring(2);
+
+        return methodName().substring(3);
     }
 }

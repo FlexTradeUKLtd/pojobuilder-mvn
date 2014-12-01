@@ -71,7 +71,7 @@ class PojoBuilderBuilder {
             assert params.length == 1 : "Cannot create builder if setter has multiple params";
 
             Class fieldType = property.getType();
-            JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel.ref(fieldType), fieldNameCamelCase);
+            JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel._ref(fieldType), fieldNameCamelCase);
             createWithMethod(fieldName, fieldNameCamelCase, fieldType, field);
             properties.add(new FieldSetter(field, setter));
         }
