@@ -4,6 +4,7 @@ import static com.sun.codemodel.JExpr.ref;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
 import org.hamcrest.BaseMatcher;
@@ -20,6 +21,7 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
 public class PojoMatcherBuilder {
@@ -29,6 +31,7 @@ public class PojoMatcherBuilder {
     private final String outputDir;
     private final JDefinedClass definedClass;
     private final JFieldVar matcherField;
+    private final PropertyTranslater propertyTranslater = new PropertyTranslater(codeModel);
 
     public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
@@ -74,7 +77,7 @@ public class PojoMatcherBuilder {
         @Override
         public void accept(Property property) {
             JMethod withMethod = definedClass.method(JMod.PUBLIC, definedClass, "with" + property.getFieldName());
-            withMethod.param(property.getType(), property.getFieldNameCamelCase());
+            withMethod.param(propertyTranslater.getJType(property.getType()), property.getFieldNameCamelCase());
             withMethod.body().assign(matcherField,
                     matchers_allOf(
                             matcherField,
@@ -91,6 +94,8 @@ public class PojoMatcherBuilder {
         private JInvocation is(String expected) {
             return codeModel.ref(Matchers.class).staticInvoke("is").arg(ref(expected));
         }
+
+
     }
 
     private JInvocation matchers_allOf(JExpression matcher1, JExpression matcher2) {

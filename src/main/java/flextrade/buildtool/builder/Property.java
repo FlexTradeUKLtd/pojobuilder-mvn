@@ -1,5 +1,7 @@
 package flextrade.buildtool.builder;
 
+import java.lang.reflect.Type;
+
 public class Property {
     public final MethodWrapper getter;
     public final MethodWrapper setter;
@@ -22,7 +24,7 @@ public class Property {
         return string.isEmpty() ? string : string.substring(0, 1).toLowerCase() + string.substring(1);
     }
 
-    public Class<?> getType() {
-        return getter.method.getReturnType();
+    public Type getType() {
+        return getter.method.getGenericReturnType();
     }
 }

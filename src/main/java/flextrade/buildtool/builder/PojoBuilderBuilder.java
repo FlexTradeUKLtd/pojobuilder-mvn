@@ -7,6 +7,7 @@ import static com.sun.codemodel.JExpr.ref;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -19,6 +20,7 @@ import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
 class PojoBuilderBuilder {
@@ -29,6 +31,7 @@ class PojoBuilderBuilder {
     private final JDefinedClass definedClass;
 
     private final Set<FieldSetter> properties = newHashSet();
+    private final PropertyTranslater propertyTranslater = new PropertyTranslater(codeModel);
 
     public PojoBuilderBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
@@ -70,13 +73,15 @@ class PojoBuilderBuilder {
             Class[] params = setter.getParameterTypes();
             assert params.length == 1 : "Cannot create builder if setter has multiple params";
 
-            Class fieldType = property.getType();
-            JFieldVar field = definedClass.field(JMod.PRIVATE, codeModel._ref(fieldType), fieldNameCamelCase);
+            JType fieldType = propertyTranslater.getJType(property.getType());
+
+            JFieldVar field = definedClass.field(JMod.PRIVATE, fieldType, fieldNameCamelCase);
             createWithMethod(fieldName, fieldNameCamelCase, fieldType, field);
             properties.add(new FieldSetter(field, setter));
         }
 
-        private void createWithMethod(String fieldName, String fieldNameCamelCase, Class fieldType, JFieldVar field) {
+
+        private void createWithMethod(String fieldName, String fieldNameCamelCase, JType fieldType, JFieldVar field) {
             JMethod withMethod = definedClass.method(JMod.PUBLIC, definedClass, "with" + fieldName);
             withMethod.param(fieldType, fieldNameCamelCase);
             withMethod.body().assign(JExpr._this().ref(field), ref(fieldNameCamelCase));
