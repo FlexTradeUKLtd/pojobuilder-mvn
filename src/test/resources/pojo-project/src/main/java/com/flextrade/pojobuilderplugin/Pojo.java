@@ -9,7 +9,10 @@ public class Pojo extends PojoSuper {
     private boolean booleanField;
     private Optional<Integer> optionalInteger;
     private List<String> listOfStrings;
+
     private List<Optional<Integer>> listOfOptionalIntegers;
+    private int[] intArray;
+    private List<?> listOfAnything;
 
     public void setStringField(String stringField) {
         this.stringField = stringField;
@@ -49,5 +52,21 @@ public class Pojo extends PojoSuper {
 
     public void setListOfOptionalIntegers(List<Optional<Integer>> listOfOptionalIntegers) {
         this.listOfOptionalIntegers = listOfOptionalIntegers;
+    }
+
+    public int[] getIntArray() {
+        return intArray;
+    }
+
+    public void setIntArray(int[] intArray) {
+        this.intArray = intArray;
+    }
+
+    public List<?> getListOfAnything() {
+        return listOfAnything;
+    }
+
+    public void setListOfAnything(List<?> listOfAnything) {
+        this.listOfAnything = listOfAnything;
     }
 }

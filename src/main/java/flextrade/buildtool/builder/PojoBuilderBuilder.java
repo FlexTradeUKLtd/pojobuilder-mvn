@@ -7,7 +7,6 @@ import static com.sun.codemodel.JExpr.ref;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -31,7 +30,7 @@ class PojoBuilderBuilder {
     private final JDefinedClass definedClass;
 
     private final Set<FieldSetter> properties = newHashSet();
-    private final PropertyTranslater propertyTranslater = new PropertyTranslater(codeModel);
+    private final PropertyTranslator propertyTranslater = new PropertyTranslator(codeModel);
 
     public PojoBuilderBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;

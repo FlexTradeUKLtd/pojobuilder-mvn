@@ -4,7 +4,6 @@ import static com.sun.codemodel.JExpr.ref;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
 import org.hamcrest.BaseMatcher;
@@ -21,7 +20,6 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
-import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
 public class PojoMatcherBuilder {
@@ -31,7 +29,7 @@ public class PojoMatcherBuilder {
     private final String outputDir;
     private final JDefinedClass definedClass;
     private final JFieldVar matcherField;
-    private final PropertyTranslater propertyTranslater = new PropertyTranslater(codeModel);
+    private final PropertyTranslator propertyTranslater = new PropertyTranslator(codeModel);
 
     public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
