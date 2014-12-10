@@ -86,14 +86,4 @@ public class ClassFinder {
             return null;
         }
     }
-
-    private URL toURL(String path) {
-        try {
-            return new URL(path);
-        } catch (MalformedURLException e) {
-            log.error(e);
-            urlException = Optional.of(e);
-            return null;
-        }
-    }
 }

@@ -18,7 +18,7 @@ public class FieldFinder {
     }
 
     private Stream<Property> createFields(Class clazz) {
-        Arrays.asList(clazz.getMethods()).stream().map(MethodWrapper::new).forEach(methodWrapper -> findGettersAndSetters(methodWrapper));
+        Arrays.asList(clazz.getMethods()).stream().map(MethodWrapper::new).forEach(this::findGettersAndSetters);
 
         Set<String> fieldNames = new HashSet<>(getters.keySet());
         fieldNames.retainAll(setters.keySet());

@@ -53,7 +53,7 @@ public class PropertyTranslator {
             ParameterizedType param = (ParameterizedType) type;
 
             raw = codeModel.ref((Class) param.getRawType());
-            Arrays.stream(param.getActualTypeArguments()).forEach(t -> narrow(t));
+            Arrays.stream(param.getActualTypeArguments()).forEach(ParameterizedJTypeEncoder.this::narrow);
         }
 
         private void narrow(Type type) {
