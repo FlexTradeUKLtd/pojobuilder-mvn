@@ -77,7 +77,7 @@ public class PropertyTranslatorTest {
     }
 
     @Test
-    public void given_an_boolean_then_returned_JClass_is_correct() {
+    public void given_an_int_then_returned_JClass_is_correct() {
         JType returned = propertyTranslator.getJType( Integer.TYPE );
 
         assertThat(returned.name(), is("int"));
