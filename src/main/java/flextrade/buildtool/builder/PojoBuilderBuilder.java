@@ -1,17 +1,15 @@
 package flextrade.buildtool.builder;
 
-import static com.google.inject.internal.util.Sets.newHashSet;
 import static com.sun.codemodel.JExpr._new;
 import static com.sun.codemodel.JExpr.ref;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
-import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JFieldVar;
@@ -25,24 +23,23 @@ import flextrade.buildtool.model.CodeModelProperty;
 
 class PojoBuilderBuilder {
 
-    private final JCodeModel codeModel = new JCodeModel();
     private final String outputDir;
 
-    private final Set<FieldSetter> properties = newHashSet();
-
-    public PojoBuilderBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
+    public PojoBuilderBuilder(String outputDir) {
         this.outputDir = outputDir;
-
-        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(codeModel).withNameModifier("Builder");
-
-        classModel.getProperties().forEach(p -> createFieldFor(p, classModel));
-
-        createBuildMethod(classModel);
-
-        buildFile();
     }
 
-    private void createFieldFor(CodeModelProperty property, ClassModel classModel) {
+    public void createBuilderFor(Class<?> clazz) {
+        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(new JCodeModel()).withNameModifier("Builder");
+
+        Stream<FieldSetter> fieldSetters = classModel.getProperties().map(p -> createFieldFor(p, classModel));
+
+        createBuildMethod(classModel, fieldSetters);
+
+        buildFile(classModel);
+    }
+
+    private FieldSetter createFieldFor(CodeModelProperty property, ClassModel classModel) {
         Method setter = property.getSetter();
         String fieldNameCamelCase = property.getFieldNameCamelCase();
 
@@ -55,7 +52,7 @@ class PojoBuilderBuilder {
 
         createWithMethod(property, field, classModel);
 
-        properties.add(new FieldSetter(field, setter));
+        return new FieldSetter(field, setter);
     }
 
     private void createWithMethod(CodeModelProperty property, JFieldVar field, ClassModel classModel) {
@@ -65,24 +62,28 @@ class PojoBuilderBuilder {
         withMethod.body()._return(JExpr._this());
     }
 
-    private void createBuildMethod(final ClassModel classModel) {
+    private void createBuildMethod(final ClassModel classModel, Stream<FieldSetter> fieldSetters) {
         JClass pojoClass = classModel.getPojoClass();
 
         JMethod builderMethod = classModel.getDefinedClass().method(JMod.PUBLIC, pojoClass, "build");
         JBlock methodBody = builderMethod.body();
 
         JVar builtPojo = methodBody.decl(pojoClass, "result", _new(pojoClass));
-        for(FieldSetter property : properties) {
-            methodBody.invoke(builtPojo, property.getSetter().getName()).arg(property.getFieldVar());
-        }
+        fieldSetters.forEach(property ->
+                        methodBody.invoke(builtPojo, property.getSetter().getName()).arg(property.getFieldVar())
+        );
 
         methodBody._return(builtPojo);
     }
 
-    private void buildFile() throws IOException {
+    private void buildFile(ClassModel  classModel) {
         File file = new File(outputDir);
         file.mkdirs();
-        codeModel.build(file);
+        try {
+            classModel.getCodeModel().build(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class FieldSetter {

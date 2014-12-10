@@ -26,7 +26,7 @@ public class BuilderBuilder implements Builder {
         if((clazz == null) || (outputDir == null))
             throw new NullPointerException("Values not set in builder");
 
-        new PojoBuilderBuilder(clazz, outputDir);
+        new PojoBuilderBuilder(outputDir).createBuilderFor(clazz);
     }
 
 }
