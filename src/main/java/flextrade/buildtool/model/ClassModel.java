@@ -33,7 +33,7 @@ public class ClassModel {
         return this;
     }
 
-    public ClassModel withNameTail(String nameTail) {
+    public ClassModel withNameModifier(String nameTail) {
         this.nameTail = nameTail;
         return this;
     }
@@ -77,6 +77,10 @@ public class ClassModel {
         } catch (JClassAlreadyExistsException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public JCodeModel getCodeModel() {
+        return codeModel;
     }
 
     public JClass getPojoClass() {

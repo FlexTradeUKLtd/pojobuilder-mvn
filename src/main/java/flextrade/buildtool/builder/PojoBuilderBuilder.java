@@ -33,7 +33,7 @@ class PojoBuilderBuilder {
     public PojoBuilderBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.outputDir = outputDir;
 
-        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(codeModel).withNameTail("Builder");
+        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(codeModel).withNameModifier("Builder");
 
         classModel.getProperties().forEach(p -> createFieldFor(p, classModel));
 
