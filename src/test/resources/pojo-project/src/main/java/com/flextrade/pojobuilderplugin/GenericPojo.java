@@ -2,7 +2,7 @@ package com.flextrade.pojobuilderplugin;
 
 import java.util.List;
 
-public class GenericPojo<T> {
+public class GenericPojo<T> extends PojoSuper {
 
     private List<T> listOfT;
     private T tVal;

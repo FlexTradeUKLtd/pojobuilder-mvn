@@ -1,4 +1,4 @@
-package flextrade.buildtool.builder;
+package flextrade.buildtool.model;
 
 import java.lang.reflect.Type;
 

@@ -3,6 +3,7 @@ package flextrade.buildtool.builder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,6 +15,8 @@ import com.google.common.reflect.TypeToken;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JType;
 
+import flextrade.buildtool.model.PropertyTranslator;
+
 public class PropertyTranslatorTest {
     PropertyTranslator propertyTranslator;
 
@@ -21,7 +24,7 @@ public class PropertyTranslatorTest {
 
     @Before
     public void setupPropertyTranslater() {
-        propertyTranslator = new PropertyTranslator(codeModel);
+        propertyTranslator = new PropertyTranslator(codeModel, new HashMap<>());
     }
 
     @Test

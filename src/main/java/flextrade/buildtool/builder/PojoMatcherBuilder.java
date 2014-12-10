@@ -4,6 +4,9 @@ import static com.sun.codemodel.JExpr.ref;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.hamcrest.BaseMatcher;
@@ -20,7 +23,12 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JTypeVar;
 import com.sun.codemodel.JVar;
+
+import flextrade.buildtool.model.FieldFinder;
+import flextrade.buildtool.model.Property;
+import flextrade.buildtool.model.PropertyTranslator;
 
 public class PojoMatcherBuilder {
 
@@ -29,7 +37,8 @@ public class PojoMatcherBuilder {
     private final String outputDir;
     private final JDefinedClass definedClass;
     private final JFieldVar matcherField;
-    private final PropertyTranslator propertyTranslater = new PropertyTranslator(codeModel);
+    private final Map<String, JTypeVar> typeVars = new HashMap<>();
+    private final PropertyTranslator propertyTranslater = new PropertyTranslator(codeModel, typeVars);
 
     public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
@@ -37,6 +46,15 @@ public class PojoMatcherBuilder {
 
         definedClass = codeModel._class(clazz.getName() + "Matcher");
         definedClass._extends(codeModel.ref(BaseMatcher.class).narrow(clazz));
+        for(TypeVariable typeParam : clazz.getTypeParameters()) {
+            String name = typeParam.getName();
+            JTypeVar typeVar = definedClass.generify(name);
+            typeVars.put(name, typeVar);
+        }
+
+
+
+
         matcherField = definedClass.field(JMod.PRIVATE, codeModel.ref(Matcher.class).narrow(clazz), "matcher", isInstanceOfClazz());
 
         new FieldFinder(clazz).getFields().forEach(new CreateWithMethod());

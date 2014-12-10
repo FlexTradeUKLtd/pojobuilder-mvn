@@ -2,7 +2,7 @@ package com.flextrade.pojobuilderplugin;
 
 import java.util.List;
 
-public class BoundedGenericPojo<T extends Number> {
+public class BoundedGenericPojo<T extends Number> extends PojoSuper {
 
     private List<T> listOfT;
     private T tVal;

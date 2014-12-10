@@ -1,6 +1,6 @@
 package com.flextrade.pojobuilderplugin;
 
-public class ExtendsPojo extends Pojo{
+public class ExtendsPojo extends Pojo {
 
     private int extensionField;
 
