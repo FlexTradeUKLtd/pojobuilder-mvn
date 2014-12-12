@@ -10,11 +10,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
-import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 
 import flextrade.buildtool.builder.Builder;
-import flextrade.buildtool.model.ClassModel;
 
 public abstract class AbstractBuilderMojo extends AbstractMojo {
 

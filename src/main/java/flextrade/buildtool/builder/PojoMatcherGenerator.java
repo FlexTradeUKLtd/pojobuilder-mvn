@@ -2,16 +2,11 @@ package flextrade.buildtool.builder;
 
 import static com.sun.codemodel.JExpr.ref;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import com.sun.codemodel.JClass;
-import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
