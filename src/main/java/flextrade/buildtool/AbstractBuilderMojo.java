@@ -1,6 +1,7 @@
 package flextrade.buildtool;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -10,8 +11,10 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
 
 import flextrade.buildtool.builder.Builder;
+import flextrade.buildtool.model.ClassModel;
 
 public abstract class AbstractBuilderMojo extends AbstractMojo {
 
@@ -46,13 +49,11 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
 
         Set<Class<?>> classes = classFinder.findClassesWhichExtend(subClassesOf);
 
-        builder.outputTo(outputDirectory);
-
         for(Class<?> clazz : classes) {
             getLog().info("creating builder for " + clazz);
             try {
-                builder.fromClass(clazz).build();
-            } catch (JClassAlreadyExistsException | IOException e){
+                buildFile(builder.fromClass(clazz));
+            } catch (Exception e){
                 getLog().error(e);
             }
         }
@@ -60,5 +61,9 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
         getLog().info("builders created");
     }
 
-
+    private void buildFile(JCodeModel codeModel) throws IOException {
+        File file = new File(outputDirectory);
+        file.mkdirs();
+        codeModel.build(file);
+    }
 }

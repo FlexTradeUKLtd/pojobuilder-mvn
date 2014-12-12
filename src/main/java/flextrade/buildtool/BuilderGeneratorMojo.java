@@ -1,6 +1,6 @@
 package flextrade.buildtool;
 
-import flextrade.buildtool.builder.BuilderBuilder;
+import flextrade.buildtool.builder.BuilderGenerator;
 
 /**
  * Echos an object string to the output screen.
@@ -11,6 +11,6 @@ import flextrade.buildtool.builder.BuilderBuilder;
 public class BuilderGeneratorMojo extends AbstractBuilderMojo {
 
     public BuilderGeneratorMojo() {
-        super(new BuilderBuilder());
+        super(new BuilderGenerator());
     }
 }

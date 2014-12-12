@@ -1,14 +1,7 @@
 package flextrade.buildtool.builder;
 
-import java.io.IOException;
-
-import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
 
 public interface Builder {
-
-    public Builder fromClass(Class clazz);
-
-    public Builder outputTo(String outputDir);
-
-    public void build() throws IOException, JClassAlreadyExistsException;
+    public JCodeModel fromClass(Class<?> clazz);
 }

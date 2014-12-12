@@ -3,8 +3,6 @@ package flextrade.buildtool.builder;
 import static com.sun.codemodel.JExpr._new;
 import static com.sun.codemodel.JExpr.ref;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
@@ -21,22 +19,17 @@ import com.sun.codemodel.JVar;
 import flextrade.buildtool.model.ClassModel;
 import flextrade.buildtool.model.CodeModelProperty;
 
-class PojoBuilderBuilder {
+public class BuilderGenerator implements Builder {
 
-    private final String outputDir;
-
-    public PojoBuilderBuilder(String outputDir) {
-        this.outputDir = outputDir;
-    }
-
-    public void createBuilderFor(Class<?> clazz) {
+    @Override
+    public JCodeModel fromClass(Class<?> clazz) {
         final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(new JCodeModel()).withNameModifier("Builder");
 
         Stream<FieldSetter> fieldSetters = classModel.getProperties().map(p -> createFieldFor(p, classModel));
 
         createBuildMethod(classModel, fieldSetters);
 
-        buildFile(classModel);
+        return classModel.getCodeModel();
     }
 
     private FieldSetter createFieldFor(CodeModelProperty property, ClassModel classModel) {
@@ -74,16 +67,6 @@ class PojoBuilderBuilder {
         );
 
         methodBody._return(builtPojo);
-    }
-
-    private void buildFile(ClassModel  classModel) {
-        File file = new File(outputDir);
-        file.mkdirs();
-        try {
-            classModel.getCodeModel().build(file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static class FieldSetter {

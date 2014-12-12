@@ -25,14 +25,12 @@ import com.sun.codemodel.JVar;
 import flextrade.buildtool.model.ClassModel;
 import flextrade.buildtool.model.CodeModelProperty;
 
-public class PojoMatcherBuilder {
+public class PojoMatcherGenerator implements Builder {
 
     private final JCodeModel codeModel = new JCodeModel();
-    private final String outputDir;
 
-    public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
-        this.outputDir = outputDir;
-
+    @Override
+    public JCodeModel fromClass(Class<?> clazz) {
         final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(codeModel).withNameModifier("Matcher");
 
         JDefinedClass definedClass = classModel.getDefinedClass();
@@ -47,7 +45,7 @@ public class PojoMatcherBuilder {
         createMatchesMethod(classModel, matcherField);
         createDescribeToMethod(classModel, matcherField);
 
-        buildFile(classModel);
+        return classModel.getCodeModel();
     }
 
     private void createDescribeToMethod(ClassModel classModel, JFieldVar matcherField) {
@@ -66,12 +64,6 @@ public class PojoMatcherBuilder {
 
     private JInvocation matchers_instanceOfPojo(ClassModel classModel) {
         return classModel.getCodeModel().ref(Matchers.class).staticInvoke("instanceOf").arg(classModel.getPojoClass().dotclass());
-    }
-
-    private void buildFile(ClassModel classModel) throws IOException {
-        File file = new File(outputDir);
-        file.mkdirs();
-        classModel.getCodeModel().build(file);
     }
 
     private class WithMethodCreator {
@@ -102,7 +94,6 @@ public class PojoMatcherBuilder {
             withMethod.body()._return(JExpr._this());
         }
 
-
         private JInvocation matchers_is(String expected, ClassModel classModel) {
             return classModel.getCodeModel().ref(Matchers.class).staticInvoke("is").arg(ref(expected));
         }
@@ -115,6 +106,5 @@ public class PojoMatcherBuilder {
             return classModel.getCodeModel().ref(Matchers.class).staticInvoke("hasProperty").arg(JExpr.lit(propertyName)).arg(matcher);
         }
     }
-
 
 }
