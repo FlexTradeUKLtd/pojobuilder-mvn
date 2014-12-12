@@ -29,7 +29,6 @@ public class PojoMatcherBuilder {
 
     private final JCodeModel codeModel = new JCodeModel();
     private final String outputDir;
-    private final JFieldVar matcherField;
 
     public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.outputDir = outputDir;
@@ -39,66 +38,83 @@ public class PojoMatcherBuilder {
         JDefinedClass definedClass = classModel.getDefinedClass();
         definedClass._extends(codeModel.ref(BaseMatcher.class).narrow(classModel.getPojoClass()));
 
-        matcherField = definedClass.field(JMod.PRIVATE, codeModel.ref(Matcher.class).narrow(clazz), "matcher", matchers_instanceOf(classModel.getPojoClass()));
+        final JFieldVar matcherField = definedClass.field(JMod.PRIVATE, codeModel.ref(Matcher.class).narrow(clazz), "matcher", matchers_instanceOfPojo(classModel));
 
-        classModel.getProperties().forEach(prop -> createWithMethod(classModel, prop));
+        final WithMethodCreator withMethodCreator = new WithMethodCreator(classModel, matcherField);
 
-        createMatchesMethod(classModel);
-        createDescribeToMethod(classModel);
+        classModel.getProperties().forEach(withMethodCreator::createWithMethod);
 
-        buildFile();
+        createMatchesMethod(classModel, matcherField);
+        createDescribeToMethod(classModel, matcherField);
+
+        buildFile(classModel);
     }
 
-    private void createWithMethod(ClassModel classModel, CodeModelProperty property) {
-        JDefinedClass definedClass = classModel.getDefinedClass();
-        JMethod withMethod = definedClass.method(JMod.PUBLIC, definedClass, "with" + property.getFieldName());
-        withMethod.param(property.getJType(), property.getFieldNameCamelCase());
-        withMethod.body().assign(matcherField,
-                matchers_allOf(
-                        matcherField,
-                        matchers_hasProperty(
-                                property.getFieldNameCamelCase(),
-                                matchers_is(property.getFieldNameCamelCase())
-                        )
-                )
-
-        );
-        withMethod.body()._return(JExpr._this());
-    }
-
-    private void createDescribeToMethod(ClassModel classModel) {
-        JMethod describeToMethod = classModel.getDefinedClass().method(JMod.PUBLIC, codeModel.VOID, "describeTo");
+    private void createDescribeToMethod(ClassModel classModel, JFieldVar matcherField) {
+        JMethod describeToMethod = classModel.getDefinedClass().method(JMod.PUBLIC, classModel.getCodeModel().VOID, "describeTo");
         JVar descriptionVar = describeToMethod.param(Description.class, "description");
         describeToMethod.annotate(Override.class);
         describeToMethod.body().invoke(matcherField, "describeTo").arg(descriptionVar);
     }
 
-    private void createMatchesMethod(ClassModel classModel) {
-        JMethod matchesMethod = classModel.getDefinedClass().method(JMod.PUBLIC, codeModel.BOOLEAN, "matches");
+    private void createMatchesMethod(ClassModel classModel, JFieldVar matcherField) {
+        JMethod matchesMethod = classModel.getDefinedClass().method(JMod.PUBLIC, classModel.getCodeModel().BOOLEAN, "matches");
         JVar param = matchesMethod.param(Object.class, "o");
         matchesMethod.annotate(Override.class);
         matchesMethod.body()._return(JExpr.invoke(matcherField, "matches").arg(param));
     }
 
-    private JInvocation matchers_instanceOf(JClass jClass) {
-        return codeModel.ref(Matchers.class).staticInvoke("instanceOf").arg(jClass.dotclass());
+    private JInvocation matchers_instanceOfPojo(ClassModel classModel) {
+        return classModel.getCodeModel().ref(Matchers.class).staticInvoke("instanceOf").arg(classModel.getPojoClass().dotclass());
     }
 
-    private void buildFile() throws IOException {
+    private void buildFile(ClassModel classModel) throws IOException {
         File file = new File(outputDir);
         file.mkdirs();
-        codeModel.build(file);
+        classModel.getCodeModel().build(file);
     }
 
-    private JInvocation matchers_is(String expected) {
-        return codeModel.ref(Matchers.class).staticInvoke("is").arg(ref(expected));
+    private class WithMethodCreator {
+        private final ClassModel classModel;
+        private final JFieldVar matcherField;
+
+        public WithMethodCreator(ClassModel classModel, JFieldVar matcherField) {
+            this.classModel = classModel;
+            this.matcherField = matcherField;
+        }
+
+        private void createWithMethod(CodeModelProperty property) {
+            JDefinedClass definedClass = classModel.getDefinedClass();
+            JMethod withMethod = definedClass.method(JMod.PUBLIC, definedClass, "with" + property.getFieldName());
+            withMethod.param(property.getJType(), property.getFieldNameCamelCase());
+            withMethod.body().assign(matcherField,
+                    matchers_allOf(
+                            matcherField,
+                            matchers_hasProperty(
+                                    property.getFieldNameCamelCase(),
+                                    matchers_is(property.getFieldNameCamelCase(), classModel),
+                                    classModel
+                            ),
+                            classModel
+                    )
+
+            );
+            withMethod.body()._return(JExpr._this());
+        }
+
+
+        private JInvocation matchers_is(String expected, ClassModel classModel) {
+            return classModel.getCodeModel().ref(Matchers.class).staticInvoke("is").arg(ref(expected));
+        }
+
+        private JInvocation matchers_allOf(JExpression matcher1, JExpression matcher2, ClassModel classModel) {
+            return classModel.getCodeModel().ref(Matchers.class).staticInvoke("allOf").arg(matcher1).arg(matcher2);
+        }
+
+        private JInvocation matchers_hasProperty(String propertyName, JExpression matcher, ClassModel classModel) {
+            return classModel.getCodeModel().ref(Matchers.class).staticInvoke("hasProperty").arg(JExpr.lit(propertyName)).arg(matcher);
+        }
     }
 
-    private JInvocation matchers_allOf(JExpression matcher1, JExpression matcher2) {
-        return codeModel.ref(Matchers.class).staticInvoke("allOf").arg(matcher1).arg(matcher2);
-    }
 
-    private JInvocation matchers_hasProperty(String propertyName, JExpression matcher) {
-        return codeModel.ref(Matchers.class).staticInvoke("hasProperty").arg(JExpr.lit(propertyName)).arg(matcher);
-    }
 }
