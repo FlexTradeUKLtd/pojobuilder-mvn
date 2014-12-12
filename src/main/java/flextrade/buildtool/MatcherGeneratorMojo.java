@@ -1,6 +1,6 @@
 package flextrade.buildtool;
 
-import flextrade.buildtool.builder.PojoMatcherGenerator;
+import flextrade.buildtool.builder.MatcherGenerator;
 
 /**
  * Echos an object string to the output screen.
@@ -11,6 +11,6 @@ import flextrade.buildtool.builder.PojoMatcherGenerator;
 public class MatcherGeneratorMojo extends AbstractBuilderMojo {
 
     public MatcherGeneratorMojo() {
-        super(new PojoMatcherGenerator());
+        super(new MatcherGenerator());
     }
 }

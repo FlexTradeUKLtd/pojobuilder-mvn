@@ -20,7 +20,7 @@ import com.sun.codemodel.JVar;
 import flextrade.buildtool.model.ClassModel;
 import flextrade.buildtool.model.CodeModelProperty;
 
-public class PojoMatcherGenerator implements Builder {
+public class MatcherGenerator implements Builder {
 
     private final JCodeModel codeModel = new JCodeModel();
 
