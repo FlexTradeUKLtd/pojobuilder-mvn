@@ -26,7 +26,7 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * @parameter property = "output.dir", defaultValue = "/target/fail/generated-sources/"
+     * @parameter property = "outputDirectory", defaultValue = "/target/fail/generated-sources/"
      */
     private String outputDirectory;
 
