@@ -26,7 +26,7 @@ public class MatcherGenerator implements Builder {
 
     @Override
     public JCodeModel fromClass(Class<?> clazz) {
-        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(codeModel).withNameModifier("Matcher");
+        final ClassModel classModel = new ClassModel(clazz, "Matcher");
 
         JDefinedClass definedClass = classModel.getDefinedClass();
         definedClass._extends(codeModel.ref(BaseMatcher.class).narrow(classModel.getPojoClass()));

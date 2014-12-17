@@ -24,7 +24,7 @@ public class BuilderGenerator implements Builder {
 
     @Override
     public JCodeModel fromClass(Class<?> clazz) {
-        final ClassModel classModel = new ClassModel().withClazz(clazz).withCodeModel(new JCodeModel()).withNameModifier("Builder");
+        final ClassModel classModel = new ClassModel(clazz, "Builder");
 
         Stream<FieldSetter> fieldSetters = classModel.getProperties().map(p -> createFieldFor(p, classModel));
 

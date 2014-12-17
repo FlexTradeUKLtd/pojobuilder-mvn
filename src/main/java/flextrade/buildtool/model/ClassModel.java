@@ -15,68 +15,56 @@ import com.sun.codemodel.JTypeVar;
 
 public class ClassModel {
 
-    private Class<?> clazz;
+    private final Class<?> clazz;
     private final Map<String, JTypeVar> typeVars = new HashMap<>();
-    private PropertyTranslator propertyTranslator;
-    private JCodeModel codeModel;
-    private String nameTail;
-    private JDefinedClass definedClass;
-    private Stream<CodeModelProperty> properties;
+    private final PropertyTranslator propertyTranslator;
+    private final JCodeModel codeModel = new JCodeModel();
+    private final String nameTail;
+    private final JDefinedClass definedClass;
+    private final Stream<CodeModelProperty> properties;
 
-    public ClassModel withClazz(Class<?> clazz) {
+    public ClassModel(Class<?> clazz, String nameTail) {
         this.clazz = clazz;
-        return this;
-    }
-
-    public ClassModel withCodeModel(JCodeModel codeModel) {
-        this.codeModel = codeModel;
-        return this;
-    }
-
-    public ClassModel withNameModifier(String nameTail) {
         this.nameTail = nameTail;
-        return this;
+        propertyTranslator = new PropertyTranslator(codeModel, typeVars);
+
+        try {
+            definedClass = codeModel._class(clazz.getName() + nameTail);
+        } catch (JClassAlreadyExistsException e) {
+            throw new RuntimeException(e);
+        }
+
+        populateTypeVars(clazz);
+        properties = new FieldFinder(clazz).getFields().map(p -> new CodeModelProperty(p, propertyTranslator));
+    }
+
+    private void populateTypeVars(Class<?> clazz) {
+        for (TypeVariable typeParam : clazz.getTypeParameters()) {
+            String name = typeParam.getName();
+
+            JTypeVar typeVar;
+            Type[] bounds = typeParam.getBounds();
+            if (bounds.length > 0) {
+                JType bound = propertyTranslator.getJType(bounds[0]);
+                typeVar = definedClass.generify(name, (JClass) bound);
+            } else {
+                typeVar = definedClass.generify(name);
+            }
+            typeVars.put(name, typeVar);
+        }
     }
 
 
     public JDefinedClass getDefinedClass() {
-        if(definedClass == null) {
-            init();
-        }
-
         return definedClass;
     }
 
     public Stream<CodeModelProperty> getProperties() {
-        if(definedClass == null) {
-            init();
-        }
-
         return properties;
     }
 
     private void init() {
-        try {
-            propertyTranslator = new PropertyTranslator(codeModel, typeVars);
-            definedClass = codeModel._class(clazz.getName() + nameTail);
-            for (TypeVariable typeParam : clazz.getTypeParameters()) {
-                String name = typeParam.getName();
 
-                JTypeVar typeVar;
-                Type[] bounds = typeParam.getBounds();
-                if (bounds.length > 0) {
-                    JType bound = propertyTranslator.getJType(bounds[0]);
-                    typeVar = definedClass.generify(name, (JClass) bound);
-                } else {
-                    typeVar = definedClass.generify(name);
-                }
-                typeVars.put(name, typeVar);
-            }
-
-            properties = new FieldFinder(clazz).getFields().map(p -> new CodeModelProperty(p, propertyTranslator));
-        } catch (JClassAlreadyExistsException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public JCodeModel getCodeModel() {
