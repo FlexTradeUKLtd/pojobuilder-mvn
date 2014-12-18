@@ -6,6 +6,13 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>pojobuilder-maven-plugin-parent</name>
+  
+    <scm>
+    </scm>
+  
+    <distributionManagement>
+    </distributionManagement>
+
   <modules>
       <module>pojobuilder-maven-plugin</module>
     <module>pojobuilder-maven-plugin-test</module>

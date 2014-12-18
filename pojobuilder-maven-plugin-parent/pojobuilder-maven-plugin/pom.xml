@@ -9,12 +9,6 @@
 
     <name>PojoBuilder Maven Plugin</name>
 
-    <scm>
-    </scm>
-
-    <distributionManagement>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
