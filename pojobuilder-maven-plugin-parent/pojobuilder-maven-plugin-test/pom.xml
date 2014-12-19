@@ -46,7 +46,7 @@
             <plugin>
                 <groupId>com.flextrade.pojobuilder</groupId>
                 <artifactId>pojobuilder-maven-plugin</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
                 <executions>
                     <execution>
                         <id>generate-builder-sources</id>
@@ -65,7 +65,7 @@
             <plugin>
                 <groupId>com.flextrade.pojobuilder</groupId>
                 <artifactId>pojobuilder-maven-plugin</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
                 <executions>
                     <execution>
                         <id>generate-builder-sources</id>
