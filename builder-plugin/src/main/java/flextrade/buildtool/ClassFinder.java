@@ -7,9 +7,10 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -20,8 +21,6 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.dyuproject.protostuff.Message;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 public class ClassFinder {
 
@@ -34,29 +33,8 @@ public class ClassFinder {
         this.log = log;
     }
 
-    public Set<Class<?>> findSubClassesOf(String className) throws ClassNotFoundException, MojoFailureException {
-        log.info("Searching for sub classes of " + className);
-        return findClasses(Class.forName(className));
-    }
-
-    public <T> Set<Class<? extends T>> findClasses(Class<?> anyClazz) throws MojoFailureException, ClassNotFoundException {
-        Class<T> clazz = (Class<T>) anyClazz;
-
-
-        log.info("Searching for sub classes of " + clazz.getName());
-
-        List<URL> urls;
-        try {
-            for(String s : project.getCompileClasspathElements()) {
-                log.info(s);
-            }
-
-            urls = Lists.transform(project.getCompileClasspathElements(), new ToURL());
-        } catch (DependencyResolutionRequiredException e) {
-            log.error(e);
-            throw new MojoFailureException("Unable to get runtimeClasspathElements", e);
-        }
-
+    public Set<Class<? extends Message>> findClasses() throws MojoFailureException {
+        List<URL> urls = project.getDependencyArtifacts().stream().map(Artifact::getFile).map(new ToURL()).collect(Collectors.<URL>toList());
 
         log.info("got " + urls.size() + " urls");
         URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
@@ -73,22 +51,21 @@ public class ClassFinder {
 
         log.info("got reflections");
 
-        Set<Class<? extends T>> classes = reflections.getSubTypesOf(clazz);
+        Set<Class<? extends Message>> classes = reflections.getSubTypesOf(Message.class);
 
         log.info("got " + classes.size() + " classes");
         return classes;
     }
 
-    private static class ToURL implements Function<String, URL> {
+    private static class ToURL implements Function<File, URL> {
         @Override
-        public URL apply(@Nullable String s) {
+        public URL apply(File file) {
             try {
-                return new File(s).toURL();
+                return file.toURL();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
             return null;
         }
     }
-
 }

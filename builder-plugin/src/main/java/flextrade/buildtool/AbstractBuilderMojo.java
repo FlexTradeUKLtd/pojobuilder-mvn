@@ -40,23 +40,22 @@ public abstract class AbstractBuilderMojo extends AbstractMojo {
     {
         ClassFinder classFinder = new ClassFinder(project, getLog());
 
-        try {
-//            Set<Class<?>> classes = classFinder.findSubClassesOf("com.dyuproject.protostuff.Message");
-            Set<Class<?>> classes = classFinder.findSubClassesOf(Message.class.getName());
+        Set<Class<? extends Message>> classes = classFinder.findClasses();
 
-            builder.outputTo(outputDirectory);
+        builder.outputTo(outputDirectory);
 
-            for(Class<?> clazz : classes) {
-                getLog().info("creating builder for " + clazz);
+        for(Class<? extends Message> clazz : classes) {
+            getLog().info("creating builder for " + clazz);
+            try {
 
                 builder.fromClass(clazz).build();
+
+            } catch (JClassAlreadyExistsException | IOException e){
+                getLog().error(e);
             }
-
-            getLog().info("builders created");
-
-        } catch (JClassAlreadyExistsException | IOException | ClassNotFoundException e){
-            getLog().error(e);
         }
+
+        getLog().info("builders created");
     }
 
 
