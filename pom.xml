@@ -8,13 +8,16 @@
   <name>pojobuilder-maven-plugin-parent</name>
   
     <scm>
+        <connection>scm:git:git@github.com:FlexTradeUKLtd/pojobuilder-mvn.git</connection>
+        <developerConnection>scm:git@github.com:FlexTradeUKLtd/pojobuilder-mvn.git</developerConnection>
+        <url>http://github.com/FlexTradeUKLtd/pojobuilder-mvn.git</url>
     </scm>
   
     <distributionManagement>
     </distributionManagement>
 
   <modules>
-      <module>pojobuilder-maven-plugin</module>
+    <module>pojobuilder-maven-plugin</module>
     <module>pojobuilder-maven-plugin-test</module>
   </modules>
 </project>
