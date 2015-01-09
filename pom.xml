@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>flextrade</groupId>
-    <artifactId>builder-plugin</artifactId>
+    <artifactId>pojobuilder-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <version>1.0-SNAPSHOT</version>
 
