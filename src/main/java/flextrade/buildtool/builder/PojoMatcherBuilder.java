@@ -12,7 +12,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import com.dyuproject.protostuff.Message;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
@@ -24,16 +23,16 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 
-public class PojoMatcherBuilder<T extends Message> {
+public class PojoMatcherBuilder {
 
     private final JCodeModel codeModel = new JCodeModel();
-    private final Class<T> clazz;
+    private final Class<?> clazz;
     private final String outputDir;
     private final JDefinedClass definedClass;
     private final JFieldVar matcherField;
     private final Stream<Property> fields;
 
-    public PojoMatcherBuilder(Class<T> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
+    public PojoMatcherBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
         this.outputDir = outputDir;
         definedClass = codeModel._class(clazz.getName() + "Matcher");

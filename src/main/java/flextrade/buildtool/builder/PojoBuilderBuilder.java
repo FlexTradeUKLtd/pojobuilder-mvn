@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.dyuproject.protostuff.Message;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
@@ -22,17 +21,17 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 
-class PojoBuilderBuilder<T extends Message> {
+class PojoBuilderBuilder {
 
 
     private final JCodeModel codeModel = new JCodeModel();
-    private final Class<T> clazz;
+    private final Class<?> clazz;
     private final String outputDir;
     private final JDefinedClass definedClass;
 
     private final Set<FieldSetter> properties = newHashSet();
 
-    public PojoBuilderBuilder(Class<T> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
+    public PojoBuilderBuilder(Class<?> clazz, String outputDir) throws JClassAlreadyExistsException, IOException {
         this.clazz = clazz;
         this.outputDir = outputDir;
         definedClass = codeModel._class(clazz.getName() + "Builder");

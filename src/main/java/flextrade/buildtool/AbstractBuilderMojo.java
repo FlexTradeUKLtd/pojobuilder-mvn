@@ -9,7 +9,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
-import com.dyuproject.protostuff.Message;
 import com.sun.codemodel.JClassAlreadyExistsException;
 
 import flextrade.buildtool.builder.Builder;
