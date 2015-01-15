@@ -82,8 +82,11 @@
                     </execution>
                 </executions>
             </plugin>
+            
+           
         </plugins>
     </build>
+
 
     <modules>
         <module>pojobuilder-maven-plugin</module>
