@@ -85,6 +85,7 @@
         </plugins>
     </build>
 
+
     <modules>
         <module>pojobuilder-maven-plugin</module>
         <module>pojobuilder-maven-plugin-test</module>
