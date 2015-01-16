@@ -13,5 +13,12 @@ env:
 
 after_success:
   - mvn deploy --settings ./settings.xml
+    on: 
+      branch: master
+  - mvn deploy --settings ./settings.xml -DperformRelease=true
+    on:
+      tags: true
+      condition: "TRAVIS_TAG =~ ^v.*"
+  
     
   
