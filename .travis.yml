@@ -11,14 +11,4 @@ env:
   - secure: ap96TJGuFRBW4DOK9yCloX++0X9y1OaDdBTOtdfYtfgP1lKhwpD8LhLOC2+vG5tyRRqRHhVC5CosnxuA9TvYu7Q461FFJy4mu97KKzcK1LLDsdB95DctOVatr17Vsr6lERkHXDOFxWDFWjdcLnRdnr/TLs6fnv6GmI13n59/fiY=
   - secure: hPIubMliRX639qSAklvmsBaX0qom43H7XEHrF4FizyA59w8IbuUZoY3eUtXHPi7rMQiVYBgh7HIdWjDX4oUySTtWyTDFCW2hvWHWgjJr64aOT2IcAg8NJ4vqc9WnIskZFJwH5ypbOWIQcnX3ya/UqEaNblUlUGWB+5GIeLMMTIA=
 
-after_success:
-  - mvn deploy --settings ./settings.xml
-    on: 
-      branch: master
-  - mvn deploy --settings ./settings.xml -DperformRelease=true
-    on:
-      tags: true
-      condition: "TRAVIS_TAG =~ ^v.*"
-  
-    
-  
+script: ./deploy.sh
