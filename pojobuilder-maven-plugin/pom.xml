@@ -12,6 +12,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>PojoBuilder Maven Plugin</name>
+    <description>Maven Plugin which generates Builders and matchers</description>
 
     <dependencies>
         <dependency>
